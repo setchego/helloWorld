@@ -34,6 +34,7 @@ Partial Class Form1
         Me.chk557 = New System.Windows.Forms.CheckBox()
         Me.chkEico = New System.Windows.Forms.CheckBox()
         Me.chkCopppel = New System.Windows.Forms.CheckBox()
+        Me.chkNaldo = New System.Windows.Forms.CheckBox()
         Me.GroupBox1.SuspendLayout()
         Me.Panel1.SuspendLayout()
         Me.SuspendLayout()
@@ -155,11 +156,22 @@ Partial Class Form1
         Me.chkCopppel.Text = "COPPEL"
         Me.chkCopppel.UseVisualStyleBackColor = True
         '
+        'chkNaldo
+        '
+        Me.chkNaldo.AutoSize = True
+        Me.chkNaldo.Location = New System.Drawing.Point(226, 82)
+        Me.chkNaldo.Name = "chkNaldo"
+        Me.chkNaldo.Size = New System.Drawing.Size(122, 17)
+        Me.chkNaldo.TabIndex = 5
+        Me.chkNaldo.Text = "NALDO LOMBARDI"
+        Me.chkNaldo.UseVisualStyleBackColor = True
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(385, 136)
+        Me.Controls.Add(Me.chkNaldo)
         Me.Controls.Add(Me.chkCopppel)
         Me.Controls.Add(Me.chkEico)
         Me.Controls.Add(Me.chk557)
@@ -190,5 +202,6 @@ Partial Class Form1
     Friend WithEvents chk557 As System.Windows.Forms.CheckBox
     Friend WithEvents chkEico As System.Windows.Forms.CheckBox
     Friend WithEvents chkCopppel As System.Windows.Forms.CheckBox
+    Friend WithEvents chkNaldo As System.Windows.Forms.CheckBox
 
 End Class

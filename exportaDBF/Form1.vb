@@ -22,7 +22,7 @@ Public Class Form1
         Cursor = Cursors.WaitCursor
         Dim sdoc, nDias As Integer
         Dim sNombre, scod, sCodPostal, sDomicilio, sLocalidad, sProvincia As String
-        If chkCopppel.Checked Then
+        If chkCopppel.Checked Or chkNaldo.Checked Then
             Dim license As License = New License()
             license.SetLicense(System.AppDomain.CurrentDomain.BaseDirectory() & "License.config")
             Dim wb As New Workbook
@@ -30,67 +30,106 @@ Public Class Form1
             Dim sheet As Worksheet = wb.Worksheets(0)
             Dim y As Integer = 2
             Dim archOut As New System.IO.StreamWriter(txtOUT.Text)
-            archOut.WriteLine("MOROSOSSIISAV3")
+            If chkCopppel.Checked Then
+                archOut.WriteLine("MOROSOSSIISAV3")
 
-            While ((Not (sheet.Cells(y, 0).Value Is Nothing)) AndAlso sheet.Cells(y, 0).Value <> "") _
-                Or ((Not (sheet.Cells(y + 1, 0).Value Is Nothing)) AndAlso sheet.Cells(y + 1, 0).Value <> "")
-                If (Not sheet.Cells(y, 0).Value Is Nothing) AndAlso (Not sheet.Cells(y, 1).Value Is Nothing) AndAlso sheet.Cells(y, 1).Value.ToString.Length < 9 Then
-                    sdoc = sheet.Cells(y, 1).Value
-                    sNombre = sheet.Cells(y, 0).Value
-                    If sNombre.Length > 25 Then sNombre = sNombre.Substring(0, 25)
-                    scod = "0"
-                    Dim fechIngreso As New Date(sheet.Cells(y, 8).Value.ToString.Substring(0, 4), sheet.Cells(y, 8).Value.ToString.Substring(4, 2), sheet.Cells(y, 8).Value.ToString.Substring(6, 2))
-                    If fechIngreso.Year < 1901 Or fechIngreso.Year > 2020 Then
-                        fechIngreso = Now()
+                While ((Not (sheet.Cells(y, 0).Value Is Nothing)) AndAlso sheet.Cells(y, 0).Value <> "") _
+                    Or ((Not (sheet.Cells(y + 1, 0).Value Is Nothing)) AndAlso sheet.Cells(y + 1, 0).Value <> "")
+                    If (Not sheet.Cells(y, 0).Value Is Nothing) AndAlso (Not sheet.Cells(y, 1).Value Is Nothing) AndAlso sheet.Cells(y, 1).Value.ToString.Length < 9 Then
+                        sdoc = sheet.Cells(y, 1).Value
+                        sNombre = sheet.Cells(y, 0).Value
+                        If sNombre.Length > 25 Then sNombre = sNombre.Substring(0, 25)
+                        scod = "0"
+                        Dim fechIngreso As New Date(sheet.Cells(y, 8).Value.ToString.Substring(0, 4), sheet.Cells(y, 8).Value.ToString.Substring(4, 2), sheet.Cells(y, 8).Value.ToString.Substring(6, 2))
+                        If fechIngreso.Year < 1901 Or fechIngreso.Year > 2020 Then
+                            fechIngreso = Now()
+                        End If
+                        Dim diferencia As Int32 = DateDiff(DateInterval.Day, fechIngreso, Now())
+                        Select Case diferencia
+                            Case Is < 31
+                                scod = 1
+                                Exit Select
+                            Case Is < 91
+                                scod = 2
+                                Exit Select
+                            Case Is < 121
+                                scod = 3
+                                Exit Select
+                            Case Is > 120
+                                scod = 4
+                        End Select
+                        sCodPostal = sheet.Cells(y, 14).Value
+                        sDomicilio = sheet.Cells(y, 9).Value & " " & sheet.Cells(y, 10).Value & IIf(sheet.Cells(y, 11).Value = "0", "", " piso " & sheet.Cells(y, 11).Value) & ", " & sheet.Cells(y, 12).Value
+                        If sDomicilio.Length > 50 Then sDomicilio = sDomicilio.Substring(0, 50)
+                        sLocalidad = sheet.Cells(y, 12).Value
+                        If (Not sLocalidad Is Nothing) AndAlso sLocalidad.Length > 25 Then sLocalidad = sLocalidad.Substring(0, 25)
+                        sProvincia = sheet.Cells(y, 13).Value
+                        Dim sCuil As String = "00000000000"
+                        Dim sCapital As String = sheet.Cells(y, 6).Value
+                        Dim sInteres As String = "00000"
+                        Dim sFechaMora As String = Format(fechIngreso, "yyyyMMdd")
+                        Dim sOrigen As String = "00"
+                        Dim sTel As String = sheet.Cells(y, 19).Value
+                        If sTel = "0" Then sTel = ""
+                        'archOut.Write(FillWithChar(sdoc.ToString, 8, False, "0"))
+                        'archOut.Write(FillWithChar(sNombre, 25, False, " "))
+                        'archOut.Write(scod)
+                        'archOut.Write("00000000000")
+                        'archOut.Write(FillWithChar(sCodPostal, 4, False, " "))
+                        'archOut.Write("          ")
+                        'archOut.Write(FillWithChar(sDomicilio, 110, False, " "))
+                        archOut.Write(FillWithChar(sdoc.ToString, 8, False, "0"))
+                        archOut.Write(FillWithChar(sNombre, 25, True, " "))
+                        archOut.Write(sCuil)
+                        archOut.Write(FillWithChar(sCapital, 5, False, "0"))
+                        archOut.Write(sInteres)
+                        archOut.Write(sFechaMora)
+                        archOut.Write(sOrigen)
+                        archOut.Write(FillWithChar(sTel, 15, True, " "))
+                        archOut.Write(FillWithChar(sDomicilio, 50, True, " "))
+                        archOut.Write(FillWithChar(sCodPostal, 8, True, " "))
+                        archOut.WriteLine()
                     End If
-                    Dim diferencia As Int32 = DateDiff(DateInterval.Day, fechIngreso, Now())
-                    Select Case diferencia
-                        Case Is < 31
-                            scod = 1
-                            Exit Select
-                        Case Is < 91
-                            scod = 2
-                            Exit Select
-                        Case Is < 121
-                            scod = 3
-                            Exit Select
-                        Case Is > 120
-                            scod = 4
-                    End Select
-                    sCodPostal = sheet.Cells(y, 14).Value
-                    sDomicilio = sheet.Cells(y, 9).Value & " " & sheet.Cells(y, 10).Value & IIf(sheet.Cells(y, 11).Value = "0", "", " piso " & sheet.Cells(y, 11).Value) & ", " & sheet.Cells(y, 12).Value
-                    If sDomicilio.Length > 50 Then sDomicilio = sDomicilio.Substring(0, 50)
-                    sLocalidad = sheet.Cells(y, 12).Value
-                    If (Not sLocalidad Is Nothing) AndAlso sLocalidad.Length > 25 Then sLocalidad = sLocalidad.Substring(0, 25)
-                    sProvincia = sheet.Cells(y, 13).Value
-                    Dim sCuil As String = "00000000000"
-                    Dim sCapital As String = sheet.Cells(y, 6).Value
-                    Dim sInteres As String = "00000"
-                    Dim sFechaMora As String = Format(fechIngreso, "yyyyMMdd")
-                    Dim sOrigen As String = "00"
-                    Dim sTel As String = sheet.Cells(y, 19).Value
-                    If sTel = "0" Then sTel = ""
-                    'archOut.Write(FillWithChar(sdoc.ToString, 8, False, "0"))
-                    'archOut.Write(FillWithChar(sNombre, 25, False, " "))
-                    'archOut.Write(scod)
-                    'archOut.Write("00000000000")
-                    'archOut.Write(FillWithChar(sCodPostal, 4, False, " "))
-                    'archOut.Write("          ")
-                    'archOut.Write(FillWithChar(sDomicilio, 110, False, " "))
-                    archOut.Write(FillWithChar(sdoc.ToString, 8, False, "0"))
-                    archOut.Write(FillWithChar(sNombre, 25, True, " "))
-                    archOut.Write(sCuil)
-                    archOut.Write(FillWithChar(sCapital, 5, False, "0"))
-                    archOut.Write(sInteres)
-                    archOut.Write(sFechaMora)
-                    archOut.Write(sOrigen)
-                    archOut.Write(FillWithChar(sTel, 15, True, " "))
-                    archOut.Write(FillWithChar(sDomicilio, 50, True, " "))
-                    archOut.Write(FillWithChar(sCodPostal, 8, True, " "))
-                    archOut.WriteLine()
-                End If
-                y += 1
-            End While
+                    y += 1
+                End While
+            Else
+                y = 0
+                archOut.WriteLine("MOROSOSSIISAV3")
+
+                While Not (sheet.Cells(y, 0).Value Is Nothing)
+                    If sheet.Cells(y, 0).Value <> "LOCALIDAD" Then
+                        sdoc = sheet.Cells(y, 2).Value
+                        sNombre = sheet.Cells(y, 1).Value
+                        If sNombre.Length > 25 Then sNombre = sNombre.Substring(0, 25)
+                        scod = "0"
+
+                        sCodPostal = ""
+                        sDomicilio = sheet.Cells(y, 3).Value & " " & sheet.Cells(y, 4).Value & " , BUENOS AIRES"
+                        If sDomicilio.Length > 50 Then sDomicilio = sDomicilio.Substring(0, 50)
+                        sLocalidad = sheet.Cells(y, 0).Value
+                        If (Not sLocalidad Is Nothing) AndAlso sLocalidad.Length > 25 Then sLocalidad = sLocalidad.Substring(0, 25)
+                        sProvincia = "BUENOS AIRES"
+                        Dim sCuil As String = "00000000000"
+                        Dim sCapital As String = "00000"
+                        Dim sInteres As String = "00000"
+                        Dim sFechaMora As String = "00000000"
+                        Dim sOrigen As String = "00"
+                        Dim sTel As String = ""
+                        archOut.Write(FillWithChar(sdoc.ToString, 8, False, "0"))
+                        archOut.Write(FillWithChar(sNombre, 25, True, " "))
+                        archOut.Write(sCuil)
+                        archOut.Write(FillWithChar(sCapital, 5, False, "0"))
+                        archOut.Write(sInteres)
+                        archOut.Write(sFechaMora)
+                        archOut.Write(sOrigen)
+                        archOut.Write(FillWithChar(sTel, 15, True, " "))
+                        archOut.Write(FillWithChar(sDomicilio, 50, True, " "))
+                        archOut.Write(FillWithChar(sCodPostal, 8, True, " "))
+                        archOut.WriteLine()
+                    End If
+                    y += 1
+                End While
+            End If
             archOut.Close()
         Else
             If txtDBF.Text = "" Or txtOUT.Text = "" Then Exit Sub
